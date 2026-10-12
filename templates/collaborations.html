@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Collaborations{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Sidebar (if user is logged in) -->
+        {% if session.get('user_id') %}
+        <div class="col-lg-2 col-md-3 bg-white vh-100 p-0 border-end" style="position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto;">
+            <div class="p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Menu</h6>
+                {% if session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                {% else %}
+                <a href="{{ url_for('user_dashboard') }}" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                {% endif %}
+                <a href="{{ url_for('collaborations') }}" class="sidebar-link active">
+                    <i class="bi bi-handshake"></i> Collaborations
+                </a>
+                <a href="{{ url_for('profile') }}" class="sidebar-link">
+                    <i class="bi bi-person"></i> Profile
+                </a>
+                <hr>
+                <a href="{{ url_for('logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-10 col-md-9 p-4">
+        {% else %}
+        <div class="col-12 p-4">
+        {% endif %}
+        
+            <h4 class="fw-bold mb-4"><i class="bi bi-handshake text-primary me-2"></i>Our Collaborations</h4>
+            
+            <!-- Add Collaboration (Admin Only) -->
+            {% if session.get('user_role') == 'admin' %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-plus-circle text-primary me-2"></i>Add New Collaboration</h6>
+                    <form method="POST" action="{{ url_for('add_collaboration') }}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Organization Name</label>
+                                <input type="text" class="form-control" name="org_name" placeholder="Organization name" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Type</label>
+                                <select class="form-select" name="org_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="NGO">NGO</option>
+                                    <option value="School">School</option>
+                                    <option value="Hospital">Hospital</option>
+                                    <option value="Corporate">Corporate</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Contact Person</label>
+                                <input type="text" class="form-control" name="contact_person" placeholder="Contact person name" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" class="form-control" name="email" placeholder="email@org.com" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Phone</label>
+                                <input type="tel" class="form-control" name="phone" placeholder="Phone number">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Partnership Type</label>
+                                <input type="text" class="form-control" name="partnership_type" placeholder="e.g., Medical Camp, Awareness">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Description</label>
+                                <textarea class="form-control" name="description" rows="2" placeholder="Describe the collaboration"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-custom">
+                                    <i class="bi bi-plus-circle me-2"></i> Add Collaboration
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Collaborations Grid -->
+            <div class="row g-4">
+                {% if collaborations %}
+                    {% for collab in collaborations %}
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm card-hover h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-primary-subtle rounded-circle p-3 mx-auto mb-3" style="width: 70px; height: 70px;">
+                                    <i class="bi bi-building fs-2 text-primary"></i>
+                                </div>
+                                <h5 class="fw-bold">{{ collab.org_name }}</h5>
+                                <span class="badge bg-primary mb-2">{{ collab.org_type }}</span>
+                                <p class="small text-muted mb-2">
+                                    <i class="bi bi-person"></i> {{ collab.contact_person }}
+                                </p>
+                                <p class="small text-muted mb-2">
+                                    <i class="bi bi-envelope"></i> {{ collab.email }}
+                                </p>
+                                {% if collab.phone %}
+                                <p class="small text-muted mb-2">
+                                    <i class="bi bi-phone"></i> {{ collab.phone }}
+                                </p>
+                                {% endif %}
+                                <p class="small text-muted mb-2">
+                                    <i class="bi bi-tag"></i> {{ collab.partnership_type or 'General Partnership' }}
+                                </p>
+                                {% if collab.description %}
+                                <p class="small text-muted">{{ collab.description }}</p>
+                                {% endif %}
+                                <div class="text-muted small">
+                                    <i class="bi bi-clock"></i> Since {{ collab.joined_date[:10] if collab.joined_date else 'N/A' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="bi bi-handshake fs-1 text-muted d-block mb-3"></i>
+                            <h5 class="text-muted">No collaborations yet</h5>
+                            <p class="text-muted">Check back later for partnership updates</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

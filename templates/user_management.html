@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3 bg-white vh-100 p-0 border-end" style="position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto;">
+            <div class="p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Admin Menu</h6>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('user_management') }}" class="sidebar-link">
+                    <i class="bi bi-people"></i> User Management
+                </a>
+                <a href="{{ url_for('op_booking') }}" class="sidebar-link">
+                    <i class="bi bi-calendar-plus"></i> OP Booking
+                </a>
+                <a href="{{ url_for('op_scheduler') }}" class="sidebar-link">
+                    <i class="bi bi-calendar-week"></i> OP Scheduler
+                </a>
+                <a href="{{ url_for('health_metrics') }}" class="sidebar-link">
+                    <i class="bi bi-heart-pulse"></i> Health Metrics
+                </a>
+                <a href="{{ url_for('staff_management') }}" class="sidebar-link active">
+                    <i class="bi bi-person-badge"></i> Staff Management
+                </a>
+                <a href="{{ url_for('collaborations') }}" class="sidebar-link">
+                    <i class="bi bi-handshake"></i> Collaborations
+                </a>
+                <hr>
+                <a href="{{ url_for('logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10 col-md-9 p-4">
+            <h4 class="fw-bold mb-4"><i class="bi bi-person-badge text-primary me-2"></i>Staff Management</h4>
+            
+            <!-- Add Staff Form -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-person-plus text-primary me-2"></i>Add New Staff Member</h6>
+                    <form method="POST" action="{{ url_for('staff_management') }}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Full Name</label>
+                                <input type="text" class="form-control" name="name" placeholder="Dr. John Smith" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Role</label>
+                                <select class="form-select" name="role" required>
+                                    <option value="">Select Role</option>
+                                    <option value="Doctor">Doctor</option>
+                                    <option value="Nurse">Nurse</option>
+                                    <option value="Receptionist">Receptionist</option>
+                                    <option value="Pharmacist">Pharmacist</option>
+                                    <option value="Lab Technician">Lab Technician</option>
+                                    <option value="Administrator">Administrator</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" class="form-control" name="email" placeholder="staff@email.com" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Phone</label>
+                                <input type="tel" class="form-control" name="phone" placeholder="9876543210" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Department</label>
+                                <input type="text" class="form-control" name="department" placeholder="Cardiology">
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-custom">
+                                    <i class="bi bi-person-plus me-2"></i> Add Staff
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Staff List -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-people-fill text-primary me-2"></i>Staff Directory</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Department</th>
+                                    <th>Joined</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for staff in staff_list %}
+                                <tr>
+                                    <td>{{ staff.id }}</td>
+                                    <td><strong>{{ staff.name }}</strong></td>
+                                    <td><span class="badge bg-primary">{{ staff.role }}</span></td>
+                                    <td>{{ staff.email }}</td>
+                                    <td>{{ staff.phone }}</td>
+                                    <td>{{ staff.department or 'N/A' }}</td>
+                                    <td>{{ staff.joined_date[:10] if staff.joined_date else 'N/A' }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if staff.is_active else 'danger' }}">
+                                            {{ 'Active' if staff.is_active else 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('delete_staff', staff_id=staff.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Remove this staff member?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="9" class="text-center py-4 text-muted">
+                                        <i class="bi bi-people fs-3 d-block mb-2"></i>
+                                        No staff members added yet
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

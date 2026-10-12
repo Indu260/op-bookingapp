@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3 bg-white vh-100 p-0 border-end" style="position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto;">
+            <div class="p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Admin Menu</h6>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link active">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('user_management') }}" class="sidebar-link">
+                    <i class="bi bi-people"></i> User Management
+                </a>
+                <a href="{{ url_for('op_booking') }}" class="sidebar-link">
+                    <i class="bi bi-calendar-check"></i> OP Bookings
+                </a>
+                <a href="{{ url_for('health_metrics') }}" class="sidebar-link">
+                    <i class="bi bi-heart-pulse"></i> Health Metrics
+                </a>
+                <a href="{{ url_for('staff_management') }}" class="sidebar-link">
+                    <i class="bi bi-person-badge"></i> Staff Management
+                </a>
+                <a href="{{ url_for('collaborations') }}" class="sidebar-link">
+                    <i class="bi bi-handshake"></i> Collaborations
+                </a>
+                <a href="{{ url_for('profile') }}" class="sidebar-link">
+                    <i class="bi bi-person"></i> Profile
+                </a>
+                <hr>
+                <a href="{{ url_for('logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10 col-md-9 p-4">
+            <h4 class="fw-bold mb-4"><i class="bi bi-speedometer2 text-primary me-2"></i>Admin Dashboard</h4>
+            
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Total Users</h6>
+                                    <h3 class="fw-bold mb-0">{{ total_users }}</h3>
+                                </div>
+                                <div class="bg-primary-subtle rounded-circle p-3">
+                                    <i class="bi bi-people fs-4 text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Total Bookings</h6>
+                                    <h3 class="fw-bold mb-0">{{ total_bookings }}</h3>
+                                </div>
+                                <div class="bg-success-subtle rounded-circle p-3">
+                                    <i class="bi bi-calendar-check fs-4 text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Pending Approvals</h6>
+                                    <h3 class="fw-bold mb-0">{{ pending_bookings }}</h3>
+                                </div>
+                                <div class="bg-warning-subtle rounded-circle p-3">
+                                    <i class="bi bi-clock-history fs-4 text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Total Doctors</h6>
+                                    <h3 class="fw-bold mb-0">{{ total_doctors }}</h3>
+                                </div>
+                                <div class="bg-info-subtle rounded-circle p-3">
+                                    <i class="bi bi-person-heart fs-4 text-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Bookings & Users -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-bottom">
+                            <h6 class="fw-bold mb-0">Recent Bookings</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Patient</th>
+                                            <th>Doctor</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for booking in recent_bookings %}
+                                        <tr>
+                                            <td>{{ booking.pname }}</td>
+                                            <td>{{ booking.dname }}</td>
+                                            <td>{{ booking.SlDate }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if booking.status == 'confirmed' else 'warning' if booking.status == 'pending' else 'secondary' }}">
+                                                    {{ booking.status }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-bottom">
+                            <h6 class="fw-bold mb-0">Recent Users</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Joined</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in recent_users %}
+                                        <tr>
+                                            <td>{{ user.full_name or user.username }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td>{{ user.created_at[:10] }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                                                    {{ 'Active' if user.is_active else 'Inactive' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

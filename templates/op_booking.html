@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}OP Booking{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3 bg-white vh-100 p-0 border-end" style="position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto;">
+            <div class="p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Menu</h6>
+                {% if session.get('user_role') == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('user_management') }}" class="sidebar-link">
+                    <i class="bi bi-people"></i> User Management
+                </a>
+                {% else %}
+                <a href="{{ url_for('user_dashboard') }}" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                {% endif %}
+                <a href="{{ url_for('op_booking') }}" class="sidebar-link active">
+                    <i class="bi bi-calendar-plus"></i> OP Booking
+                </a>
+                <a href="{{ url_for('profile') }}" class="sidebar-link">
+                    <i class="bi bi-person"></i> Profile
+                </a>
+                <hr>
+                <a href="{{ url_for('logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10 col-md-9 p-4">
+            <h4 class="fw-bold mb-4"><i class="bi bi-calendar-plus text-primary me-2"></i>OP Booking</h4>
+            
+            <!-- Booking Form -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Book New Appointment</h6>
+                    <form method="POST" action="{{ url_for('book_op') }}" id="bookingForm">
+                        <input type="hidden" name="bookingId" id="bookingId">
+                        
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Patient Name</label>
+                                <input type="text" class="form-control" name="patientName" id="patientName" placeholder="Full name" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Age</label>
+                                <input type="number" class="form-control" name="age" id="age" placeholder="Age" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" class="form-control" name="email" id="email" placeholder="patient@email.com" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Aadhaar</label>
+                                <input type="text" class="form-control" name="aadhar" id="aadhar" placeholder="12-digit Aadhaar" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Disease</label>
+                                <input type="text" class="form-control" name="disease" id="disease" placeholder="Disease/condition" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Suffered Since</label>
+                                <input type="date" class="form-control" name="sufferedSince" id="sufferedSince" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Select Doctor</label>
+                                <select class="form-select" name="did" id="did" required>
+                                    <option value="">Choose Doctor</option>
+                                    {% for doctor in doctors %}
+                                    <option value="{{ doctor.did }}">{{ doctor.dname }} - {{ doctor.specialization }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Booking Date</label>
+                                <input type="date" class="form-control" name="bookingDate" id="bookingDate" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Booking Time</label>
+                                <input type="time" class="form-control" name="bookingTime" id="bookingTime" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Symptoms</label>
+                                <textarea class="form-control" name="symptoms" id="symptoms" rows="2" placeholder="Describe symptoms"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-custom">
+                                    <i class="bi bi-check-circle me-2"></i> Book Appointment
+                                </button>
+                                <button type="reset" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Bookings Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-list-ul text-primary me-2"></i>All Bookings</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                <tr>
+                                    <td>{{ booking.pid }}</td>
+                                    <td>{{ booking.pname }}</td>
+                                    <td>{{ booking.dname }}</td>
+                                    <td>{{ booking.SlDate }}</td>
+                                    <td>{{ booking.SlTime }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if booking.status == 'confirmed' else 'warning' if booking.status == 'pending' else 'secondary' }}">
+                                            {{ booking.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editBooking({{ booking.pid }}, '{{ booking.pname }}', {{ booking.age }}, '{{ booking.email }}', '{{ booking.aadhaar }}', '{{ booking.disease }}', '{{ booking.since }}', '{{ booking.symptoms }}', {{ booking.did }}, '{{ booking.SlDate }}', '{{ booking.SlTime }}')">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <form method="POST" action="{{ url_for('delete_op', pid=booking.pid) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this booking?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                        {% if session.get('user_role') == 'admin' %}
+                                        <form method="POST" action="{{ url_for('update_op_status', pid=booking.pid) }}" style="display: inline;">
+                                            <select name="status" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="this.form.submit()">
+                                                <option value="pending" {% if booking.status == 'pending' %}selected{% endif %}>Pending</option>
+                                                <option value="confirmed" {% if booking.status == 'confirmed' %}selected{% endif %}>Confirm</option>
+                                                <option value="completed" {% if booking.status == 'completed' %}selected{% endif %}>Completed</option>
+                                                <option value="cancelled" {% if booking.status == 'cancelled' %}selected{% endif %}>Cancel</option>
+                                            </select>
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="bi bi-calendar-plus fs-3 d-block mb-2"></i>
+                                        No bookings found. Book your first appointment!
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editBooking(pid, pname, age, email, aadhaar, disease, since, symptoms, did, date, time) {
+    document.getElementById('bookingId').value = pid;
+    document.getElementById('patientName').value = pname;
+    document.getElementById('age').value = age;
+    document.getElementById('email').value = email;
+    document.getElementById('aadhar').value = aadhaar;
+    document.getElementById('disease').value = disease;
+    document.getElementById('sufferedSince').value = since;
+    document.getElementById('symptoms').value = symptoms;
+    document.getElementById('did').value = did;
+    document.getElementById('bookingDate').value = date;
+    document.getElementById('bookingTime').value = time;
+    
+    // Scroll to form
+    document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

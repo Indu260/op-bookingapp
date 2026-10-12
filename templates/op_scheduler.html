@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}OP Scheduler{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3 bg-white vh-100 p-0 border-end" style="position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto;">
+            <div class="p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Admin Menu</h6>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('user_management') }}" class="sidebar-link">
+                    <i class="bi bi-people"></i> User Management
+                </a>
+                <a href="{{ url_for('op_booking') }}" class="sidebar-link">
+                    <i class="bi bi-calendar-plus"></i> OP Booking
+                </a>
+                <a href="{{ url_for('op_scheduler') }}" class="sidebar-link active">
+                    <i class="bi bi-calendar-week"></i> OP Scheduler
+                </a>
+                <a href="{{ url_for('health_metrics') }}" class="sidebar-link">
+                    <i class="bi bi-heart-pulse"></i> Health Metrics
+                </a>
+                <a href="{{ url_for('staff_management') }}" class="sidebar-link">
+                    <i class="bi bi-person-badge"></i> Staff Management
+                </a>
+                <a href="{{ url_for('collaborations') }}" class="sidebar-link">
+                    <i class="bi bi-handshake"></i> Collaborations
+                </a>
+                <hr>
+                <a href="{{ url_for('logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10 col-md-9 p-4">
+            <h4 class="fw-bold mb-4"><i class="bi bi-calendar-week text-primary me-2"></i>OP Scheduler</h4>
+            
+            <!-- Calendar View -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">
+                            <i class="bi bi-calendar3 text-primary me-2"></i>
+                            <span id="currentMonthYear">{{ now.strftime('%B %Y') }}</span>
+                        </h6>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="changeMonth(-1)">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="changeMonth(1)">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                            <button class="btn btn-sm btn-custom" onclick="goToday()">Today</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th>Sun</th>
+                                    <th>Mon</th>
+                                    <th>Tue</th>
+                                    <th>Wed</th>
+                                    <th>Thu</th>
+                                    <th>Fri</th>
+                                    <th>Sat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendarBody">
+                                <!-- Calendar will be rendered by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Daily Schedule -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="fw-bold mb-0">
+                        <i class="bi bi-clock-history text-primary me-2"></i>
+                        Schedule for <span id="selectedDate">{{ now.strftime('%B %d, %Y') }}</span>
+                    </h6>
+                </div>
+                <div class="card-body" id="dailySchedule">
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-calendar-check fs-3 d-block mb-2"></i>
+                        Select a date to view schedule
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentDate = new Date();
+let selectedDate = new Date();
+
+function renderCalendar() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    document.getElementById('currentMonthYear').textContent = 
+        currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    let html = '<tr>';
+    // Empty cells for days before month start
+    for (let i = 0; i < firstDay; i++) {
+        html += '<td></td>';
+    }
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const isToday = date.toDateString() === new Date().toDateString();
+        const isSelected = date.toDateString() === selectedDate.toDateString();
+        const dayOfWeek = date.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        
+        html += `<td class="calendar-day ${isToday ? 'bg-primary-subtle' : ''} ${isSelected ? 'bg-primary text-white' : ''}" 
+                     style="cursor: pointer; ${isWeekend ? 'background-color: #f8f9fa;' : ''}"
+                     onclick="selectDate('${date.toISOString().split('T')[0]}')">
+                    <div class="py-2">${day}</div>
+                    <div class="small">
+                        <span class="badge bg-success rounded-pill" style="font-size: 8px;">3</span>
+                        <span class="badge bg-warning rounded-pill" style="font-size: 8px;">2</span>
+                    </div>
+                </td>`;
+        
+        if ((day + firstDay) % 7 === 0) {
+            html += '</tr><tr>';
+        }
+    }
+    html += '</tr>';
+    document.getElementById('calendarBody').innerHTML = html;
+}
+
+function changeMonth(delta) {
+    currentDate.setMonth(currentDate.getMonth() + delta);
+    renderCalendar();
+}
+
+function goToday() {
+    currentDate = new Date();
+    selectedDate = new Date();
+    renderCalendar();
+    loadSchedule(selectedDate);
+}
+
+function selectDate(dateStr) {
+    selectedDate = new Date(dateStr);
+    renderCalendar();
+    loadSchedule(selectedDate);
+}
+
+function loadSchedule(date) {
+    const dateStr = date.toISOString().split('T')[0];
+    document.getElementById('selectedDate').textContent = 
+        date.toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' });
+    
+    // Fetch schedule from server
+    fetch(`/api/schedule/${dateStr}`)
+        .then(response => response.json())
+        .then(data => {
+            let html = '';
+            if (data.length === 0) {
+                html = `<div class="text-center text-muted py-4">
+                            <i class="bi bi-calendar-check fs-3 d-block mb-2"></i>
+                            No appointments scheduled for this date
+                        </div>`;
+            } else {
+                html = `<div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient</th>
+                                        <th>Doctor</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                data.forEach(booking => {
+                    const statusColor = booking.status === 'confirmed' ? 'success' : 
+                                      booking.status === 'pending' ? 'warning' : 'secondary';
+                    html += `<tr>
+                                <td>${booking.SlTime}</td>
+                                <td>${booking.pname}</td>
+                                <td>${booking.dname}</td>
+                                <td><span class="badge bg-${statusColor}">${booking.status}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editBooking(${booking.pid})">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </td>
+                            </tr>`;
+                });
+                html += `</tbody></table></div>`;
+            }
+            document.getElementById('dailySchedule').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading schedule:', error);
+            document.getElementById('dailySchedule').innerHTML = 
+                '<div class="text-center text-danger py-4">Error loading schedule</div>';
+        });
+}
+
+// Initialize calendar
+renderCalendar();
+loadSchedule(selectedDate);
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+    loadSchedule(selectedDate);
+}, 30000);
+</script>
+{% endblock %}

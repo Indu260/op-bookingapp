@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3 bg-white vh-100 p-0 border-end" style="position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto;">
+            <div class="p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">Admin Menu</h6>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('user_management') }}" class="sidebar-link">
+                    <i class="bi bi-people"></i> User Management
+                </a>
+                <a href="{{ url_for('op_booking') }}" class="sidebar-link">
+                    <i class="bi bi-calendar-plus"></i> OP Booking
+                </a>
+                <a href="{{ url_for('op_scheduler') }}" class="sidebar-link">
+                    <i class="bi bi-calendar-week"></i> OP Scheduler
+                </a>
+                <a href="{{ url_for('health_metrics') }}" class="sidebar-link">
+                    <i class="bi bi-heart-pulse"></i> Health Metrics
+                </a>
+                <a href="{{ url_for('staff_management') }}" class="sidebar-link">
+                    <i class="bi bi-person-badge"></i> Staff Management
+                </a>
+                <a href="{{ url_for('reports') }}" class="sidebar-link active">
+                    <i class="bi bi-bar-chart"></i> Reports
+                </a>
+                <a href="{{ url_for('collaborations') }}" class="sidebar-link">
+                    <i class="bi bi-handshake"></i> Collaborations
+                </a>
+                <hr>
+                <a href="{{ url_for('logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10 col-md-9 p-4">
+            <h4 class="fw-bold mb-4"><i class="bi bi-bar-chart text-primary me-2"></i>Reports & Analytics</h4>
+            
+            <!-- Report Filters -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('reports') }}" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Report Type</label>
+                            <select class="form-select" name="report_type" id="reportType" onchange="updateReport()">
+                                <option value="bookings">Bookings Overview</option>
+                                <option value="patients">Patient Statistics</option>
+                                <option value="doctors">Doctor Performance</option>
+                                <option value="health">Health Metrics</option>
+                                <option value="revenue">Revenue Report</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">From Date</label>
+                            <input type="date" class="form-control" name="from_date" value="{{ from_date }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold">To Date</label>
+                            <input type="date" class="form-control" name="to_date" value="{{ to_date }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Doctor</label>
+                            <select class="form-select" name="doctor_id">
+                                <option value="">All Doctors</option>
+                                {% for doctor in doctors %}
+                                <option value="{{ doctor.did }}">{{ doctor.dname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-custom w-100">
+                                <i class="bi bi-search me-2"></i> Generate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Total Bookings</h6>
+                                    <h3 class="fw-bold mb-0">{{ stats.total_bookings or 0 }}</h3>
+                                </div>
+                                <div class="bg-primary-subtle rounded-circle p-3">
+                                    <i class="bi bi-calendar-check fs-4 text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Completed</h6>
+                                    <h3 class="fw-bold mb-0">{{ stats.completed or 0 }}</h3>
+                                </div>
+                                <div class="bg-success-subtle rounded-circle p-3">
+                                    <i class="bi bi-check-circle fs-4 text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Pending</h6>
+                                    <h3 class="fw-bold mb-0">{{ stats.pending or 0 }}</h3>
+                                </div>
+                                <div class="bg-warning-subtle rounded-circle p-3">
+                                    <i class="bi bi-clock fs-4 text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-1">Patients</h6>
+                                    <h3 class="fw-bold mb-0">{{ stats.total_patients or 0 }}</h3>
+                                </div>
+                                <div class="bg-info-subtle rounded-circle p-3">
+                                    <i class="bi bi-people fs-4 text-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-graph-up text-primary me-2"></i>Booking Trends</h6>
+                            <canvas id="bookingChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart text-primary me-2"></i>Status Distribution</h6>
+                            <canvas id="statusChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Detailed Report Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-table text-primary me-2"></i>Detailed Report</h6>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="exportReport()">
+                        <i class="bi bi-download me-1"></i> Export CSV
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="reportTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Disease</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in report_data %}
+                                <tr>
+                                    <td>{{ booking.SlDate }}</td>
+                                    <td>{{ booking.pname }}</td>
+                                    <td>{{ booking.dname }}</td>
+                                    <td>{{ booking.disease }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if booking.status == 'completed' else 'warning' if booking.status == 'pending' else 'primary' if booking.status == 'confirmed' else 'secondary' }}">
+                                            {{ booking.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('op_booking') }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">
+                                        <i class="bi bi-search fs-3 d-block mb-2"></i>
+                                        No data found for selected filters
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% if report_data %}
+                <div class="card-footer bg-white border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Showing {{ report_data|length }} records</span>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Booking Trends Chart
+const ctx1 = document.getElementById('bookingChart').getContext('2d');
+new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Bookings',
+            data: [12, 19, 15, 22, 18, 8, 10],
+            borderColor: '#07628f',
+            backgroundColor: 'rgba(7, 98, 143, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Status Distribution Chart
+const ctx2 = document.getElementById('statusChart').getContext('2d');
+new Chart(ctx2, {
+    type: 'doughnut',
+    data: {
+        labels: ['Completed', 'Pending', 'Confirmed', 'Cancelled'],
+        datasets: [{
+            data: [45, 25, 20, 10],
+            backgroundColor: ['#28a745', '#ffc107', '#007bff', '#dc3545']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+function updateReport() {
+    const reportType = document.getElementById('reportType').value;
+    // Fetch report data based on type
+    fetch(`/api/report/${reportType}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update chart and table
+            console.log('Report data:', data);
+        });
+}
+
+function exportReport() {
+    // Export table data as CSV
+    const table = document.getElementById('reportTable');
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+    for (let row of rows) {
+        const cols = row.querySelectorAll('td, th');
+        const rowData = [];
+        for (let col of cols) {
+            rowData.push(col.textContent.trim());
+        }
+        csv.push(rowData.join(','));
+    }
+    
+    const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'report.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Auto-refresh charts every 60 seconds
+setInterval(() => {
+    updateReport();
+}, 60000);
+</script>
+{% endblock %}

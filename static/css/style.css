@@ -1,0 +1,276 @@
+/* SmileCare Clinic - Main Styles */
+
+:root {
+    --brand-gradient: linear-gradient(135deg, #07628f 0%, #5e06c2 90%);
+    --brand-primary: #07628f;
+    --brand-secondary: #5e06c2;
+}
+
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+}
+
+/* Brand Logo */
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+    text-decoration: none;
+}
+
+.brand-medico {
+    color: #0284c7;
+}
+
+.brand-app {
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Custom Buttons */
+.btn-custom {
+    background: var(--brand-gradient);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-custom:hover {
+    opacity: 0.95;
+    color: white;
+    box-shadow: 0 4px 12px rgba(94, 6, 194, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-custom:active {
+    transform: translateY(0);
+}
+
+/* Cards */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Sidebar */
+.sidebar-link {
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: #64748b;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.sidebar-link:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.sidebar-link.active {
+    background: var(--brand-gradient);
+    color: white;
+}
+
+.sidebar-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Session Timer */
+.session-timer {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #07628f;
+}
+
+/* Flash Messages */
+.flash-messages {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Calendar */
+.calendar-day {
+    min-height: 80px;
+    transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+    background-color: #e9ecef;
+}
+
+.calendar-day .badge {
+    font-size: 8px;
+    padding: 2px 6px;
+}
+
+/* Forms */
+.form-control:focus,
+.form-select:focus {
+    border-color: #07628f;
+    box-shadow: 0 0 0 0.2rem rgba(7, 98, 143, 0.25);
+}
+
+/* Tables */
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .hero-section {
+        padding: 20px !important;
+    }
+    
+    .hero-img {
+        height: 200px !important;
+    }
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, rgba(7, 98, 143, 0.05) 0%, rgba(94, 6, 194, 0.05) 100%);
+    border-radius: 24px;
+    padding: 40px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.hero-img {
+    border-radius: 18px;
+    object-fit: cover;
+    width: 100%;
+    height: 380px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Feature Cards */
+.feature-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Service Boxes */
+.service-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.service-box:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+}
+
+.service-img {
+    height: 160px;
+    object-fit: cover;
+    width: 100%;
+}
+
+/* Doctor Cards */
+.doctor-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.doctor-img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+}
+
+/* Statistics Cards */
+.stat-card {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Chart Containers */
+.chart-container {
+    position: relative;
+    height: 250px;
+}
+
+/* Loading Spinner */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+    .sidebar {
+        display: none !important;
+    }
+    .col-lg-10 {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}

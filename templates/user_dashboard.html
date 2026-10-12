@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3 bg-white vh-100 p-0 border-end" style="position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto;">
+            <div class="p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-3">User Menu</h6>
+                <a href="{{ url_for('user_dashboard') }}" class="sidebar-link active">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="{{ url_for('op_booking') }}" class="sidebar-link">
+                    <i class="bi bi-calendar-plus"></i> Book OP
+                </a>
+                <a href="{{ url_for('profile') }}" class="sidebar-link">
+                    <i class="bi bi-person"></i> Profile
+                </a>
+                <hr>
+                <a href="{{ url_for('logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10 col-md-9 p-4">
+            <h4 class="fw-bold mb-4"><i class="bi bi-speedometer2 text-primary me-2"></i>My Dashboard</h4>
+            
+            <!-- Health Metrics Summary -->
+            {% if metrics %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-heart-pulse text-primary me-2"></i>Latest Health Metrics</h6>
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <div class="bg-light p-3 rounded text-center">
+                                <small class="text-muted">Height</small>
+                                <h6 class="fw-bold mb-0">{{ metrics.height or 'N/A' }} cm</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="bg-light p-3 rounded text-center">
+                                <small class="text-muted">Weight</small>
+                                <h6 class="fw-bold mb-0">{{ metrics.weight or 'N/A' }} kg</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="bg-light p-3 rounded text-center">
+                                <small class="text-muted">BP</small>
+                                <h6 class="fw-bold mb-0">{{ metrics.blood_pressure_systolic or 'N/A' }}/{{ metrics.blood_pressure_diastolic or 'N/A' }}</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="bg-light p-3 rounded text-center">
+                                <small class="text-muted">Blood Sugar</small>
+                                <h6 class="fw-bold mb-0">{{ metrics.blood_sugar or 'N/A' }} mg/dL</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="bg-light p-3 rounded text-center">
+                                <small class="text-muted">TSH</small>
+                                <h6 class="fw-bold mb-0">{{ metrics.thyroid_tsh or 'N/A' }} mIU/L</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="bg-light p-3 rounded text-center">
+                                <small class="text-muted">Recorded</small>
+                                <h6 class="fw-bold mb-0">{{ metrics.recorded_date[:10] if metrics.recorded_date else 'N/A' }}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- My Bookings -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-calendar-check text-primary me-2"></i>My OP Bookings</h6>
+                    <a href="{{ url_for('op_booking') }}" class="btn btn-sm btn-custom">Book New OP</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if bookings %}
+                                    {% for booking in bookings %}
+                                    <tr>
+                                        <td>{{ booking.pname }}</td>
+                                        <td>{{ booking.dname }}</td>
+                                        <td>{{ booking.SlDate }}</td>
+                                        <td>{{ booking.SlTime }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if booking.status == 'confirmed' else 'warning' if booking.status == 'pending' else 'secondary' }}">
+                                                {{ booking.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="bi bi-calendar-plus fs-3 d-block mb-2"></i>
+                                            No bookings yet. <a href="{{ url_for('op_booking') }}">Book your first appointment</a>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
